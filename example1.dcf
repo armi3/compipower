@@ -1,0 +1,15 @@
+class Program {
+                void main() {
+                    int x_x; int y;
+                    x_x = read();
+                    y = read();
+                    print(gcd(x_x, y));
+                }
+
+                int gcd(int a, int b) {
+                    if ( b == 0 )
+                        return a;
+                    else
+                        return gcd(b, a % b);
+                }
+            }
