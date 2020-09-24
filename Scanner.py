@@ -165,8 +165,9 @@ def tokenize(lexemes, line_nums, d):
                 token_type = 'string_literal'
 
             tokenized = Token.Token(lexeme, token, token_type, line_nums[count])
-            print('\n\nlexema: ', tokenized.lexeme, '\ntoken: ', tokenized.token, '\ntype: ', tokenized.token_type,
+            print('\n\nlexeme: ', tokenized.lexeme, '\ntoken: ', tokenized.token, '\ntype: ', tokenized.token_type,
                   '\nline_num: ', tokenized.line_num, '\nobj: ', type(tokenized))
+            token_stream.append(tokenized)
         count += 1
     return token_stream
 

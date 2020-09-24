@@ -10,8 +10,10 @@ import click
 def main(file_name, target, debug, out_name):
     click.echo("{}, {}, {}, {}".format(file_name, target, debug, out_name))
     token_stream = Scanner.scan(file_name, True)
-    f = open(('outputs/' + str(out_name) + '.txt'), "w")
-    f.writelines(token_stream)
+    f = open(('outputs/' + str(out_name) + '.txt'), "a+")
+    for tokenized in token_stream:
+        line = str('\n\nlexeme: ' + str(tokenized.lexeme) + '\ntoken: ' + str(tokenized.token) + '\ntype: ' + tokenized.token_type + '\nline_num: ' + str(tokenized.line_num))
+        f.write(line)
     f.close()
 
 
