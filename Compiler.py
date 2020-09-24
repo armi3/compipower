@@ -1,10 +1,19 @@
 import Scanner
+import click
 
 
-def print_hi(name):
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+@click.command()
+@click.argument('file_name')
+@click.option('--target', '-t', default='codegen', help='The target stage for the compiler. It can be: scan, parse, ast, semantic, irt, codegen. The default is codegen.')
+@click.option('--debug/--no-debug', default=False, help='List the stages you want to debug separating them with colons, p.e. scan:parse:irt')
+@click.option('--out_name', '-o', help='Name for output file, p. e. \'my_file\'.')
+def main(file_name, target, debug, out_name):
+    click.echo("{}, {}, {}, {}".format(file_name, target, debug, out_name))
+    token_stream = Scanner.scan(file_name, True)
+    f = open(('outputs/' + str(out_name) + '.txt'), "w")
+    f.writelines(token_stream)
+    f.close()
 
 
 if __name__ == '__main__':
-    print_hi('Bab y Fer testing...')
-    token_stream = Scanner.scan('example2.dcf', True)
+    main()

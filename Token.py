@@ -1,9 +1,10 @@
 class Token:
 
-    def __init__(self, lexeme, token, token_type):
+    def __init__(self, lexeme, token, token_type, line_num):
         self._lexeme = lexeme
         self._token = token
         self._token_type = token_type
+        self._line_num = line_num
 
     @property
     def lexeme(self):
@@ -28,3 +29,11 @@ class Token:
     @token_type.setter
     def token_type(self, val):
         self._token_type = val
+
+    @property
+    def line_num(self):
+        return self._line_num
+
+    @line_num.setter
+    def line_num(self, val):
+        self._line_num = val

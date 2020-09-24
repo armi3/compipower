@@ -1,27 +1,43 @@
 import re
 import Token
+from itertools import repeat
 
 
 def get_program(file_name, d):
     file = open(file_name, 'r')
-    program_string = file.read()
+    program_lines = file.readlines()
     if d:
-        print("\n\nprogram_string = \n", program_string)
-    return program_string
+        print("\n\nprogram_lines = ", program_lines)
+        count = 1
+        for line in program_lines:
+            print("Line{}: {}".format(count, line.strip()))
+            count += 1
+    return program_lines
 
 
-def split_program(program_string, d):
-    regex = r'class Program|{|}|\[|\]|,|;|=|\-|\+|\-=|\!|<|>|<=|>=|==|\!=|\+=|\*|\/|\&\&|\|\||%|\/\/|\"|\'|\\|\'|\"|\n|\t|\)|\(|int|boolean|if|for|return|break|continue|callout|true|false|void|else|0[x|X][\w|\d]+|\d+|[\w][\w\d_]+|[\w]+'
-    lexemes = re.findall(regex, program_string)
+def split_program(program_lines, d):
+    reg_exp = r'class Program|{|}|\[|\]|,|;|==|\-=|\+=|\-|\!=|<=|>=|<|>|=|\!|\+|\*|\/|\&\&|\|\||%|\/\/|\"|\'|\\|\'|\"|\n|\t|\)|\(|int|boolean|if|for|return|break|continue|callout|true|false|void|else|0[x|X][\w|\d]+|\d+|[\w][\w\d_]+|[\w]+'
+    lexemes = []
+    line_nums = []
+    line_num = 0
+    for line in program_lines:
+        line_lexemes = re.findall(reg_exp, line)
+        for lexeme in line_lexemes:
+            lexemes.append(lexeme)
+        line_num += 1
+        line_nums.extend(repeat(line_num, len(line_lexemes)))
+
     if d:
-        print("\n\nstring_stream = \n", lexemes)
+        print("\n\nlexemes_stream = ", lexemes)
+        print("\n\nlexemes_line_nums = ", line_nums)
         print(type(lexemes))
-    return lexemes
+    return lexemes, line_nums
 
 
-def tokenize(lexemes, d):
+def tokenize(lexemes, line_nums, d):
     token_stream = []
 
+    count = 0
     for lexeme in lexemes:
         if lexeme != ('\n' or '\t'):
             if lexeme == 'true':
@@ -39,19 +55,18 @@ def tokenize(lexemes, d):
             elif re.match(r'\d+', lexeme):
                 token = int(lexeme)
                 token_type = 'decimal_literal'
-            # aquí van los demás elifs, algunos usarán regex otros no
             elif re.match(r'\w', lexeme):
                 token = 'CHAR'
                 token_type = 'char_literal'
             elif re.match(r'(\w|_)(\d|\w|_)*', lexeme):
                 token = 'ID'
-                token_type = 'string_literal' # ID
+                token_type = 'string_literal'
             elif lexeme == '+=':
                 token = 'PLUS_EQUALS'
-                token_type = 'assign op'
+                token_type = 'assign_op'
             elif lexeme == '-=':
                 token = 'MINUS_EQUALS'
-                token_type = 'assign op'
+                token_type = 'assign_op'
             elif lexeme == 'int':
                 token = 'KW_INT'
                 token_type = 'reserved_word'
@@ -149,15 +164,15 @@ def tokenize(lexemes, d):
                 token = 'STRING'
                 token_type = 'string_literal'
 
-            tokenized = Token.Token(lexeme, token, token_type)
-            print('\n\nlexema: ', tokenized.lexeme, '\ntoken: ', tokenized.token, '\ntype: ', tokenized.token_type, '\nobj: ', type(tokenized))
+            tokenized = Token.Token(lexeme, token, token_type, line_nums[count])
+            print('\n\nlexema: ', tokenized.lexeme, '\ntoken: ', tokenized.token, '\ntype: ', tokenized.token_type,
+                  '\nline_num: ', tokenized.line_num, '\nobj: ', type(tokenized))
+        count += 1
     return token_stream
 
 
 def scan(file_name, d):
-    program_string = get_program(file_name, d)
-    lexemes = split_program(program_string, d)
-    token_stream = tokenize(lexemes, d)
+    program_lines = get_program(file_name, d)
+    lexemes, line_nums = split_program(program_lines, d)
+    token_stream = tokenize(lexemes, line_nums, d)
     return token_stream
-
-
