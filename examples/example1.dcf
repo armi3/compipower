@@ -1,15 +1,24 @@
 class Program {
                 void main() {
-                    int x_x; int y;
-                    x_x = read();
+                    int x_x;
+                    int y;
+                    x_x = 0.111;
                     y = read();
                     print(gcd(x_x, y));
                 }
 
+                // this is a comment
                 int gcd(int a, int b) {
                     if ( b == 0 )
                         return a;
+                        callout("printf", "\nA has been returned");
                     else
                         return gcd(b, a % b);
+                }
+
+                int test1(){}
+
+                int test2(){
+                    y = y + x_x;
                 }
             }

@@ -1,16 +1,15 @@
 class Program{
 
     void main(){
-        int i, sum;
-        int j;
-	    sum = 0;
+        int i, j, sum;
+	    sum = 0.23;
 
         for j = 0, 10 {
             sum += j;
         }
 
         if (sum != 45) {
-            callout("printf", "ERROR: for loop is bad (1)\n");
+            callout("printf", "ERROR for loop is bad (1)\n");
         }
 
         i = 0x1a1;
@@ -19,19 +18,19 @@ class Program{
         }
 
         if (i != 11) {
-            callout("printf", "ERROR: for loop is bad (2)\n");
+            callout("printf", "ERROR for loop is bad (2)\n");
         }
 
         if (1 > 2) {
-            callout("printf", "ERROR: true branch is bad (2)\n");
+            callout("printf", "ERROR true branch is bad (2)\n");
         } else {
-            // don't do anything here
+            // dont do anything here
         }
 
         if (1 < 2) {
-            // don't do anything here
+            // dont do anything here
         } else {
-            callout("printf", "ERROR: else branch is bad (2)\n");
+            callout("printf", "ERROR else branch is bad (2)\n");
         }
 
         callout("printf", "control flow OK if no previous output\n");
