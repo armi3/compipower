@@ -1,5 +1,4 @@
-import Token
-import MinDFA
+from model import Token, MinDFA
 
 
 def get_program(file_name, d):
