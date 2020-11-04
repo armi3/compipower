@@ -2,7 +2,7 @@ class Program{
 
     void main(){
         int i, j, sum;
-	    sum = 0.23;
+	    sum = -0.23;
 
         for j = 0, 10 {
             sum += j;

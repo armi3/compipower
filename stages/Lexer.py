@@ -37,7 +37,9 @@ def split_program(program_lines, d):
                 candidate_lexeme = candidate_lexeme + line[i]
             elif state_type == 'accept_final':
                 lexemes.append(candidate_lexeme)
-                print('line: ', line_num, ', i: ', i, ', appended: ', repr(candidate_lexeme), '\n')
+                print('line: ', line_num,
+                      ', i: ', i,
+                      ', appended: ', repr(candidate_lexeme), '\n')
                 line_nums.append(line_num)
                 candidate_lexeme = line[i]
             elif state_type == 'not_accept':

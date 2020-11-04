@@ -19,6 +19,6 @@ def main(file_name, target, debug, out_name):
 
 
 if __name__ == '__main__':
-    main()
+    #main()
     # lexer dev
-    #token_stream = Lexer.scan('examples/example2.dcf', True)
+    token_stream = Lexer.scan('examples/example2.dcf', True)
