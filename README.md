@@ -3,9 +3,14 @@
 ```
 source venv/bin/activate
 ```
-2. Making sure you're now working inside the (venv), run the compiler.
+2. Run the configuration por use the CLI 
 ```
-python Compiler.py examples/example2.dcf --target=scan -o 'ex1'
+pip install --editable .
+```
+
+3. Making sure you're now working inside the (venv), run the compiler.
+```
+compiler examples/example2.dcf --target=scan -o 'ex2'
 ```
 Replace `examples/example2.dcf` with the path to the decaf code you wish to compile (you can use one from the `\examples` directory or a file from your own).
 
@@ -14,5 +19,5 @@ The option `--target` or `-t` receives one of the six possible compiling stages 
 There are more options you can use, such as  `--out_name` (short is `-o`) and `--debug`. 
 For more information on options available and their arguments use `--help`.
 ```
-python Compiler.py --help
+compiler --help
 ```
