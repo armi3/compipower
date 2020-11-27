@@ -29,8 +29,7 @@ class Node:
     def children(self, children):
         self._children = children
 
-
     def append_child(self, child):
-        children_copy = children(self).copy()
+        children_copy = self.children(self).copy()
         children_copy.append(child)
-        children(self, children_copy)
+        self.children(self, children_copy)

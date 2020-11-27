@@ -299,6 +299,10 @@ def tokenize(lexemes, line_nums, d):
             token = 'RW_CALLOUT'
             token_type = 13
 
+        elif lexeme == 'main':
+            token = 'RW_MAIN'
+            token_type = 13
+
         elif lexeme == 'int':
             token = 'VT_INTEGER'
             token_type = 14
