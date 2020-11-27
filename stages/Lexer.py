@@ -4,8 +4,9 @@ from model import Token, MinDFA
 def get_program(file_name, d):
     file = open(file_name, 'r')
     program_lines = file.readlines()
+    print('\n📒 Scanning', str(len(program_lines)), 'input program lines ...')
     if d:
-        print("\n\nprogram_lines = ", program_lines)
+        print('📒', str(len(program_lines)), 'program lines:')
         count = 1
         for line in program_lines:
             print("Line{}: {}".format(count, line.strip()))
@@ -14,69 +15,78 @@ def get_program(file_name, d):
 
 
 def split_program(program_lines, d):
+    print('📒 Splitting input program line by line ...')
     lexemes = []
     line_nums = []
     line_num = 0
-
     for line in program_lines:
+
         line_length = len(line)
-        print('\nline length: ', line_length)
         candidate_lexeme = ''
+
+        if d:
+            print('\n📏 Current line length:', line_length)
 
         for i in range(line_length):
             if i == 0:
                 state_type, state = MinDFA.start(line[i], 1)
             else:
                 state_type, state = MinDFA.start(line[i], state)
-            print('i: ', i, ', line[i]: ', repr(line[i]), ', state_type: ', state_type, ', next state: ', str(state))
+
+            if d:
+                print('🧮 i: ', i,
+                      '\nline[i]:        ', repr(line[i]),
+                      '\nstate_type:     ', state_type,
+                      '\nnext state:     ', str(state))
 
             if (i + 1 == line_length) and state_type == 'continue':
                 state_type, state = MinDFA.start('(', state)
 
             if state_type == 'continue':
                 candidate_lexeme = candidate_lexeme + line[i]
+
             elif state_type == 'accept_final':
                 lexemes.append(candidate_lexeme)
-                print('line: ', line_num,
-                      ', i: ', i,
-                      ', appended: ', repr(candidate_lexeme), '\n')
                 line_nums.append(line_num)
                 candidate_lexeme = line[i]
+
             elif state_type == 'not_accept':
                 candidate_lexeme = ''
         line_num += 1
 
     if d:
-        print("\n\nlexemes_stream = ", lexemes)
-        print("lexemes_line_nums = ", line_nums)
-        print(type(lexemes))
+        print("\n\nlexemes_stream     =", lexemes)
+        print("lexemes_line_nums  =", line_nums)
+        print("type(lexemes)      =", type(lexemes))
+        print('len(lexemes)       =', len(lexemes))
+        print('len(line_nums)     =', len(line_nums))
 
     # remove empties '' and maybe ' '
-    print('len(lexemes): ', len(lexemes))
-    print('len(line_nums): ', len(line_nums))
-
+    print('✂️ Removing empties ...')
     new_lists_length = len(lexemes)
     i = 0
     while i < new_lists_length:
-        print('i: ', i)
+        if d:
+            print('\n🧮 i: ', i)
         if lexemes[i] in ['', ' ', '\t']:
-            print('hubo pop')
             lexemes.pop(i)
             line_nums.pop(i)
             new_lists_length -= 1
-            print('new_lists_length: ', new_lists_length)
+            if d:
+                print('‼️ Hubo pop!')
+                print('📏 new_lists_length: ', new_lists_length)
         else:
             i += 1
 
-    # print if debug is on
     if d:
-        print("\n\nlexemes_stream = ", lexemes)
-        print("lexemes_line_nums = ", line_nums)
-        print(type(lexemes))
+        print("\n\nlexemes_stream     =", lexemes)
+        print("lexemes_line_nums  =", line_nums)
+        print("type(lexemes)      =", type(lexemes))
     return lexemes, line_nums
 
 
-def find_lexical_errors(program_lines, lexemes, line_nums):
+def find_lexical_errors(program_lines, lexemes, line_nums, d):
+    print('🔍 Searching for lexical errors ... ')
     # transform program lines: smash w/o spaces
     program_lines_smashed = []
     for line in program_lines:
@@ -106,8 +116,9 @@ def find_lexical_errors(program_lines, lexemes, line_nums):
         line_smashed = line.replace(" ", "")
         lexemes_lines_smashed.append(line_smashed)
 
-    print('program_lines_smashed: ', program_lines_smashed)
-    print('lexemes_lines_smashed: ', lexemes_lines_smashed)
+    if d:
+        print('program_lines_smashed: ', program_lines_smashed)
+        print('lexemes_lines_smashed: ', lexemes_lines_smashed)
 
     # compare lines
     lines_with_lexical_errors = []
@@ -119,13 +130,13 @@ def find_lexical_errors(program_lines, lexemes, line_nums):
 
     # print errors
     if len(lines_with_lexical_errors) > 0:
-        print('\nLexical errors found in the following program lines:')
+        print('\n🚩 Lexical errors found in the following program lines:')
         for i in range(len(lines_with_lexical_errors)):
             print('LEXERROR: Line ', lines_with_lexical_errors[i])
             print(program_lines[lines_with_lexical_errors[i]])
         return True
     else:
-        print('\nNo lexical errors where found. Congrats!')
+        print('✅ No lexical errors where found!')
         return False
 
 
@@ -332,20 +343,26 @@ def tokenize(lexemes, line_nums, d):
             token_type = 18
 
         tokenized = Token.Token(lexeme, token, token_type, line_nums[count])
-        print('\n\nlexeme: ', tokenized.lexeme, '\ntoken: ', tokenized.token, '\ntoken_type: ', tokenized.token_type,
-              '\nline_num: ', tokenized.line_num, '\nobj: ', type(tokenized))
+        if d:
+            print('\nlexeme:       ', tokenized.lexeme,
+                  '\ntoken:        ', tokenized.token,
+                  '\ntoken_type:   ', tokenized.token_type,
+                  '\nline_num:     ', tokenized.line_num,
+                  '\nobj:          ', type(tokenized))
         token_stream.append(tokenized)
         count += 1
-
+        
     return token_stream
 
 
-def scan(file_name, d):
-    program_lines = get_program(file_name, d)
-    lexemes, line_nums = split_program(program_lines, d)
-    lexical_errors = find_lexical_errors(program_lines, lexemes, line_nums)
+def scan(file_name, debug_list):
+    debug_scanner = debug_list[0]
+    program_lines = get_program(file_name, debug_scanner)
+    lexemes, line_nums = split_program(program_lines, debug_scanner)
+    lexical_errors = find_lexical_errors(program_lines, lexemes, line_nums, debug_scanner)
     if not lexical_errors:
-        token_stream = tokenize(lexemes, line_nums, d)
+        token_stream = tokenize(lexemes, line_nums, debug_scanner)
+        print('➡️ Passing token stream to next phase ... ')
         return token_stream
     else:
         return []
