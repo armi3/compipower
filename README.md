@@ -9,14 +9,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Install the setup for the CLI
+3.  Now you're ready to run the compiler.
 ```
-pip install --editable .
-```
-
-4.  Now you're ready to run the compiler.
-```
-compiler examples/example4.dcf -t scan -o 'ex4'
+python Compiler.py examples/example4.dcf -t scan -o 'ex4'
 ```
 Replace `examples/example4.dcf` with the path to the decaf code you wish to compile (you can use one from the `\examples` directory or a file from your own).
 
@@ -25,5 +20,5 @@ The option `--target` or `-t` receives one of the six possible compiling stages 
 There are more options you can use, such as  `--out_name` (short is `-o`) and `--debug`. 
 For more information on options available and their arguments use `--help`.
 ```
-compiler --help
+python Compiler.py --help
 ```
