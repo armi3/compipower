@@ -248,6 +248,7 @@ def build_symbol_table(ast, d):
                          'Scope type': new_scope_scope_types}
 
     symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
+    return symbol_table_dict
 
 
 def get_new_scope_data(ast, d):
