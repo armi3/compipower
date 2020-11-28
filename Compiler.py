@@ -44,13 +44,13 @@ def cli(file_name, target, debug, opt_stage, out_name):
             debug_list[4] = True
 
     if target == 'scan':
-        token_stream = Lexer.scan('examples/example4.dcf', debug_list)
+        token_stream = Lexer.scan(file_name, debug_list)
 
     elif target == 'parse':
-        token_stream, ast = Parser.parse('examples/example4.dcf', debug_list)
+        token_stream, ast = Parser.parse(file_name, debug_list)
 
     elif target == 'semantic':
-        token_stream, ast = Semantic.semantic('examples/example4.dcf', debug_list)
+        token_stream, ast = Semantic.semantic(file_name, debug_list)
 
     elif target == 'irt':
         pass
@@ -84,4 +84,4 @@ if __name__ == '__main__':
 
     # semantic dev
     # debug_list = [False, False, True, True, True]
-    # ast = Semantic.semantic('examples/example4.dcf', debug_list)
+    # ast = Semantic.semantic('examples/example5.dcf', debug_list)

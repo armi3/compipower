@@ -1,5 +1,10 @@
 class Program {
-    int x, y;
-    boolean z, a;
-    boolean b;
+    int a, b;
+    boolean p;
+
+    void main() {
+        a = 1;
+        b = 2;
+        p = True;
+    }
 }

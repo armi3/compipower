@@ -14,7 +14,7 @@ class Program {
                 }
 
                 int gcd(int a, int b, boolean h) {
-                    int c;
+                    c int;
                     if (a == 2){
                         c = a + b;
                     } else {

@@ -1,6 +1,6 @@
 import json
 from nested_lookup import nested_lookup
-#import pandas as pd
+import pandas as pd
 from stages import Parser
 import utilities.graph
 import utilities.table
@@ -249,8 +249,10 @@ def build_symbol_table(ast, d):
                          'ID': new_scope_ids,
                          'Var type': new_scope_var_types,
                          'Scope type': new_scope_scope_types}
-
-    #symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
+    if d:
+        print(symbol_table_dict)
+    symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
+    print(symbol_table_df)
     print('👁 Generating HTML symbol table ... ')
     utilities.table.make_table(symbol_table_dict)
     return symbol_table_dict
@@ -277,8 +279,7 @@ def get_new_scope_data(ast, d):
                             new_scope_ids.append(ast[key][k]['block']['var_list'][var_key]['id'])
                             new_scope_var_types.append(ast[key][k]['block']['var_list'][var_key]['var_type'])
                             new_scope_scope_types.append('local_var_decl')
-                    if 'statement_list' in ast[key][k][
-                        'block']:  # when refactoring, recursively get data from statements blocks
+                    if 'statement_list' in ast[key][k]['block']:  # when refactoring, recursively get data from statements blocks
                         for statement_key in ast[key][k]['block']['statement_list']:
                             statements_before = 0
                             if ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'assignment':
