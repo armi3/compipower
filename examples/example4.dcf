@@ -1,8 +1,9 @@
 class Program {
     int x, y;
+    boolean f, g;
     boolean z;
                 void main() {
-                    int w;
+                    int w, uwu;
                     x = 2;
                     y = 3;
                     w = 4;
@@ -25,7 +26,7 @@ class Program {
                     return true;
                 }
 
-                boolean empty(){
+                boolean the_empty_method(){
                     boolean var_empty;
                 }
 

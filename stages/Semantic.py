@@ -36,8 +36,7 @@ def restructure_nested_lists(ast, list_name, simple_name, d):
         simples_list = []
 
         if d and ast[list_name]:
-            print("\n🐣 New ast['{}']:".format(list_name))
-            print(json.dumps(ast[list_name], indent=4))
+            print("🐣 New AST['{}'] = {}\n".format(list_name, ast[list_name]))
     return ast
 
 
@@ -60,8 +59,7 @@ def reorganize_ast(ast, d):
     ast = restructure_deeply_nested_lists(ast, 'callout_arg_list', 'callout_arg', d)
 
     if d:
-        print('🌳 Trimmed AST:\n')
-        print(json.dumps(ast, indent=4))
+        print('\n🌳 Trimmed AST = {}\n'.format(ast))
     return ast
 
 
@@ -87,7 +85,8 @@ def check_voids(ast, d):
                 print("✅ Method in line {} passed check_voids!".format(ast[key]['line_num']))
             else:
                 print("❌ Method in line {} failed check_voids!".format(ast[key]['line_num']))
-                semantic_errors.append("Method declared as void in line {} but has a return statement.".format(ast[key]['line_num']))
+                semantic_errors.append(
+                    "Method declared as void in line {} but has a return statement.".format(ast[key]['line_num']))
         elif type(content) is dict:
             check_voids(ast[key], d)
 
@@ -124,7 +123,8 @@ def check_declared(ast, d):
         for j in range(0, len(results)):
             if 'id' in results[j]:
                 if referenced_locations_ids[i] == results[j]['id']:
-                    print("✅ Location in line {} with id '{}' passed check_declared!".format(referenced_locations_lines[i], referenced_locations_ids[i]))
+                    print("✅ Location in line {} with id '{}' passed check_declared!".format(
+                        referenced_locations_lines[i], referenced_locations_ids[i]))
                     declared = True
             elif 0 in results[j]:
                 for key, content in results[j].items():
@@ -142,12 +142,85 @@ def check_declared(ast, d):
                                     referenced_locations_lines[i], referenced_locations_ids[i]))
                                 declared = True
     if not declared:
-        print("❌ Location in line {} with id '{}' failed check_declared!".format(referenced_locations_lines[i],referenced_locations_ids[i]))
-        semantic_errors.append("Location referenced in line {} with id '{}' was not declared properly.".format(referenced_locations_lines[i],referenced_locations_ids[i]))
+        print("❌ Location in line {} with id '{}' failed check_declared!".format(referenced_locations_lines[i],
+                                                                                 referenced_locations_ids[i]))
+        semantic_errors.append("Location referenced in line {} with id '{}' was not declared properly.".format(
+            referenced_locations_lines[i], referenced_locations_ids[i]))
+
+
+def remove_id_lists1(ast, d):
+    # for id_lists inside the field_decl_list
+    new_field_decls = []
+    print('✂️ Flattening field declarations in the AST ... ')
+    for key, content in ast['field_decl_list'].items():
+        if d:
+            print("🔑 Field declaration {}:       '{}'".format(key, content))
+        if 'id_list' in content:
+            for k, id in ast['field_decl_list'][key]['id_list'].items():
+                if type(k) is int:
+                    new_field_decl = {'var_type': ast['field_decl_list'][key]['var_type'],
+                                      'id': id,
+                                      'line_num': ast['field_decl_list'][key]['id_list']['line_num']}
+                    new_field_decls.append(new_field_decl)
+                    if d:
+                        print("     🔑 Nested id           = {}:'{}'".format(k, id))
+                        print('     ✨ As new field_decl   = {}'.format(new_field_decl))
+        elif 'id' in content:
+            new_field_decls.append(content)
+    ast['field_decl_list'].clear()
+    for i in range(0, len(new_field_decls)):
+        ast['field_decl_list'][i] = new_field_decls[i]
+    if d:
+        print("\n✨ Flattened AST['field_decl_list'] = {}".format(ast['field_decl_list']))
+        print("✨ Current AST = {}\n".format(ast))
+    return ast
+
+
+def remove_id_lists2(ast, d):
+    # for id_lists inside a field_decl in a var_list
+    print('✂️ Flattening local variable declarations in the AST ... ')
+    for key, content in ast['method_decl_list'].items():
+        new_var_decls = []
+
+        if d:
+            print('🔑 Method key: {}'.format(key))
+
+        if 'block' in content:
+            if 'var_list' in content['block']:
+                # will only have one id or one id_list (two ids)
+                if d:
+                    print("     🔑 Method has local variables declared. ")
+                    print("     🔑 Method['id']     =  {}".format(content['id']))
+                    print("     🔑 Method['block']  =  {}".format(content['block']))
+
+                if 'id_list' in content['block']['var_list']['field_decl']:
+                    for k in content['block']['var_list']['field_decl']['id_list']:
+                        if type(k) is int:
+                            new_var_decl = {'var_type': content['block']['var_list']['field_decl']['var_type'],
+                                            'id': content['block']['var_list']['field_decl']['id_list'][k],
+                                            'line_num': content['block']['var_list']['field_decl']['id_list']['line_num']}
+                            new_var_decls.append(new_var_decl)
+                    if d:
+                        print('     ✨ New var_decls[]  =  {}\n'.format(new_var_decls))
+                    content['block']['var_list'].clear()
+                    for i in range(0, len(new_var_decls)):
+                        content['block']['var_list'][i] = new_var_decls[i]
+
+                elif 'id' in content['block']['var_list']['field_decl']:
+                    new_var_decl = content['block']['var_list']['field_decl']
+                    content['block']['var_list'].clear()
+                    content['block']['var_list'][0] = new_var_decl
+                    if d:
+                        print('     ✨ New var_decl     =  {}\n'.format(new_var_decl))
+            else:
+                if d:
+                    print("     🔐 Method has no local variables declared.\n")
+    return ast
 
 
 def check_uniqueness(ast, d):
-    pass
+    if d:
+        print('💬 Building symbol table ... ')
 
 
 def check_assign_types(ast, d):
@@ -165,7 +238,14 @@ def semantic(file_name, debug_list):
         print("🧠️ Checking if void methods have no return statements ...")
         check_voids(reorganized_ast, debug_semantic)
         check_return_types(reorganized_ast, debug_semantic)
+        print("🧠️ Checking if every instance was declared ...")
         check_declared(reorganized_ast, debug_semantic)
+
+        reorganized_ast = remove_id_lists1(reorganized_ast, debug_semantic)
+        reorganized_ast = remove_id_lists2(reorganized_ast, debug_semantic)
+        print('🌳 A lovely, flat and decorated AST = {}'.format(reorganized_ast))
+
+        print("🧠️ Checking for duplicated identifier definition inside a same scope ...")
         check_uniqueness(reorganized_ast, debug_semantic)
         check_assign_types(reorganized_ast, debug_semantic)
 
