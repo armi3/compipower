@@ -116,15 +116,3 @@ def cli(file_name, target, debug, opt_stage, out_name):
 
 if __name__ == '__main__':
     cli()
-    # main() o cli()
-    # lexer dev
-    # debug_list = [False, False, True, True, True]
-    # token_stream = Lexer.scan('examples/example4.dcf', debug_list)
-
-    # parser dev
-    # debug_list = [False, False, True, True, True]
-    # ast = Parser.parse('examples/example4.dcf', debug_list)
-
-    # semantic dev
-    #debug_list = [False, False, False, True, True]
-    #ast = Semantic.semantic('examples/example4.dcf', debug_list)
