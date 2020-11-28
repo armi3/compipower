@@ -1,7 +1,9 @@
 import json
 from nested_lookup import nested_lookup
-import pandas as pd
+#import pandas as pd
 from stages import Parser
+import utilities.graph
+import utilities.table
 
 simples_list = []
 semantic_errors = []
@@ -148,9 +150,9 @@ def check_declared(ast, d):
                                 print("✅ Location in line {} with id '{}' passed check_declared!".format(
                                     referenced_locations_lines[i], referenced_locations_ids[i]))
                                 declared = True
-    if not declared:
-        print("❌ Location in line {} with id '{}' failed check_declared!".format(referenced_locations_lines[i],
-                                                                                 referenced_locations_ids[i]))
+        if not declared:
+            print("❌ Location in line {} with id '{}' failed check_declared!".format(referenced_locations_lines[i],
+                                                                                     referenced_locations_ids[i]))
         semantic_errors.append("Location referenced in line {} with id '{}' was not declared properly.".format(
             referenced_locations_lines[i], referenced_locations_ids[i]))
 
@@ -205,7 +207,8 @@ def remove_id_lists2(ast, d):
                         if type(k) is int:
                             new_var_decl = {'var_type': content['block']['var_list']['field_decl']['var_type'],
                                             'id': content['block']['var_list']['field_decl']['id_list'][k],
-                                            'line_num': content['block']['var_list']['field_decl']['id_list']['line_num']}
+                                            'line_num': content['block']['var_list']['field_decl']['id_list'][
+                                                'line_num']}
                             new_var_decls.append(new_var_decl)
                     if d:
                         print('     ✨ New var_decls[]  =  {}\n'.format(new_var_decls))
@@ -247,7 +250,9 @@ def build_symbol_table(ast, d):
                          'Var type': new_scope_var_types,
                          'Scope type': new_scope_scope_types}
 
-    symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
+    #symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
+    print('👁 Generating HTML symbol table ... ')
+    utilities.table.make_table(symbol_table_dict)
     return symbol_table_dict
 
 
@@ -272,35 +277,44 @@ def get_new_scope_data(ast, d):
                             new_scope_ids.append(ast[key][k]['block']['var_list'][var_key]['id'])
                             new_scope_var_types.append(ast[key][k]['block']['var_list'][var_key]['var_type'])
                             new_scope_scope_types.append('local_var_decl')
-                    if 'statement_list' in ast[key][k]['block']:    # when refactoring, recursively get data from statements blocks
+                    if 'statement_list' in ast[key][k][
+                        'block']:  # when refactoring, recursively get data from statements blocks
                         for statement_key in ast[key][k]['block']['statement_list']:
                             statements_before = 0
                             if ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'assignment':
                                 scope_counter += 1
                                 statements_before += 1
                                 new_scope_scopes.append(scope_counter)
-                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
-                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['location']['id'])
+                                new_scope_lines.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_ids.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['location']['id'])
                                 new_scope_var_types.append('tba')
                                 new_scope_scope_types.append('assignment')
-                            elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'method_call':
+                            elif ast[key][k]['block']['statement_list'][statement_key][
+                                'statement_type'] == 'method_call':
                                 scope_counter += 1
                                 statements_before += 1
                                 new_scope_scopes.append(scope_counter)
-                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['method_call']['line_num'])
-                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['method_call']['method_id'])
+                                new_scope_lines.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['method_call']['line_num'])
+                                new_scope_ids.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['method_call']['method_id'])
                                 new_scope_var_types.append('tba')
                                 new_scope_scope_types.append('method_call')
                             elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'if':
                                 new_scope_scopes.append(scope_counter - statements_before)
-                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_lines.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['line_num'])
                                 new_scope_ids.append('tba')
                                 new_scope_var_types.append('tba')
                                 new_scope_scope_types.append('if_condition')
                             elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'for':
                                 new_scope_scopes.append(scope_counter - statements_before)
-                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
-                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['initialization']['id'])
+                                new_scope_lines.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_ids.append(
+                                    ast[key][k]['block']['statement_list'][statement_key]['initialization']['id'])
                                 new_scope_var_types.append('VT_INTEGER')
                                 new_scope_scope_types.append('for_initialization')
 
@@ -314,7 +328,7 @@ def check_assign_types(ast, d):
 
 
 def semantic(file_name, debug_list):
-    ast = Parser.parse(file_name, debug_list)
+    token_stream, ast = Parser.parse(file_name, debug_list)
     if ast:
         print('\n🧠️ Starting semantic analysis ... ')
         debug_semantic = debug_list[2]
@@ -324,25 +338,27 @@ def semantic(file_name, debug_list):
         print("🧠️ Checking if void methods have no return statements ...")
         check_voids(reorganized_ast, debug_semantic)
         check_return_types(reorganized_ast, debug_semantic)
-        print("🧠️ Checking if every instance was declared ...")
-        check_declared(reorganized_ast, debug_semantic)
+        # print("🧠️ Checking if every instance was declared ...")
+        # check_declared(reorganized_ast, debug_semantic)
+        check_assign_types(reorganized_ast, debug_semantic)
 
         reorganized_ast = remove_id_lists1(reorganized_ast, debug_semantic)
         reorganized_ast = remove_id_lists2(reorganized_ast, debug_semantic)
         print('🌳 A lovely, slimmer and decorated AST = {}'.format(reorganized_ast))
+        print('👁 Exporting AST diagram ...')
+        utilities.graph.make_graph(reorganized_ast)
 
         print("🧠️ Starting type and scope analysis ...")
         symbol_table = build_symbol_table(reorganized_ast, debug_semantic)
         check_uniqueness(reorganized_ast, debug_semantic)
-        check_assign_types(reorganized_ast, debug_semantic)
 
         if len(semantic_errors) == 0:
             print('➡️ Passing decorated AST to next phase ... ')
-            return reorganized_ast
+            return token_stream, reorganized_ast
         else:
             print('🛠 The following semantic errors were detected:')
             for i in range(0, len(semantic_errors)):
                 print('{}:    {}'.format(i, semantic_errors[i]))
-            return {}
+            return token_stream, {}
     else:
-        return {}
+        return token_stream, {}

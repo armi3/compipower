@@ -27,94 +27,53 @@ def cli(file_name, target, debug, opt_stage, out_name):
         You could choose to only specify the name of the file and the name of the output file
         """
     click.echo("{}, {}, {}, {}, {}".format(file_name, target, debug, opt_stage, out_name))
-
     debug_split = debug.split(":")
+    debug_list = [False, False, False, False, False]
 
-    debug_stages = []
-    print("Debug:")
-    for i in debug_split:
-        debug_stages.append(i)
-        for j in debug_stages:
-            j = True
-        print('\t'+i+ ':', j)
-    print("........................")
+    # scan:parse:semantic:irt:codegen
+    for i in range(0, len(debug_split)):
+        if debug_split[i] == 'scan':
+            debug_list[0] = True
+        elif debug_split[i] == 'parse':
+            debug_list[1] = True
+        elif debug_split[i] == 'semantic':
+            debug_list[2] = True
+        elif debug_split[i] == 'irt':
+            debug_list[3] = True
+        elif debug_split[i] == 'codegen':
+            debug_list[4] = True
 
     if target == 'scan':
-        f = open(('outputs/' + str(out_name) + '.txt'), "a+")
-        line = 'Stage: scanning'
-        f.write(line)
-        f.close()
-
-        print("out name file: ", out_name)
-        print("stage target: ", target)
-        print("opt_stage: ", opt_stage)
-        print("========================")
-        print("stage: scanning")
+        token_stream = Lexer.scan('examples/example4.dcf', debug_list)
 
     elif target == 'parse':
-        f = open(('outputs/' + str(out_name) + '.txt'), "a+")
-        line = 'Stage: parsing'
-        f.write(line)
-        f.close()
-
-        print("out name file: ", out_name)
-        print("stage target: ", target)
-        print("opt_stage: ", opt_stage)
-        print("stage: scanning")
-        print("state: parsing")
+        token_stream, ast = Parser.parse('examples/example4.dcf', debug_list)
 
     elif target == 'semantic':
-        f = open(('outputs/' + str(out_name) + '.txt'), "a+")
-        line = 'Stage: semantic'
-        f.write(line)
-        f.close()
-
-        print("out name file: ", out_name)
-        print("stage target: ", target)
-        print("opt_stage: ", opt_stage)
-        print("========================")
-        print("stage: scanning")
-        print("state: parsing")
-        print("stage: semantic")
+        token_stream, ast = Semantic.semantic('examples/example4.dcf', debug_list)
 
     elif target == 'irt':
-        f = open(('outputs/' + str(out_name) + '.txt'), "a+")
-        line = 'Stage: irt'
-        f.write(line)
-        f.close()
-
-        print("out name file: ", out_name)
-        print("stage target: ", target)
-        print("opt_stage: ", opt_stage)
-        print("========================")
-        print("stage: scanning")
-        print("state: parsing")
-        print("stage: semantic")
-        print("stage: irt")
+        pass
 
     elif target == 'codegen':
-        f = open(('outputs/' + str(out_name) + '.txt'), "a+")
-        line = 'Stage: codegen'
-        f.write(line)
-        f.close()
-
-        print("out name file: ", out_name)
-        print("stage target: ", target)
-        print("opt_stage: ", opt_stage)
-        print("========================")
-        print("stage: scanning")
-        print("state: parsing")
-        print("stage: semantic")
-        print("stage: irt")
-        print("stage: codegen")
+        pass
 
     else:
-        print("Something went wrong!, try again")
+        print("Wrong option. Please use --help.")
+
+    f = open(('outputs/' + str(out_name) + '.txt'), "a+")
+    for tokenized in token_stream:
+        line = str('\n\nlexeme: ' + str(tokenized.lexeme)
+                   + '\ntoken: ' + str(tokenized.token)
+                   + '\ntype: ' + str(tokenized.token_type)
+                   + '\nline_num: ' + str(tokenized.line_num))
+        f.write(line)
+    f.close()
 
 
 if __name__ == '__main__':
     cli()
-    # main() o cli()
+
     # lexer dev
     # debug_list = [False, False, True, True, True]
     # token_stream = Lexer.scan('examples/example4.dcf', debug_list)
@@ -124,5 +83,5 @@ if __name__ == '__main__':
     # ast = Parser.parse('examples/example4.dcf', debug_list)
 
     # semantic dev
-    #debug_list = [False, False, False, True, True]
-    #ast = Semantic.semantic('examples/example4.dcf', debug_list)
+    # debug_list = [False, False, True, True, True]
+    # ast = Semantic.semantic('examples/example4.dcf', debug_list)

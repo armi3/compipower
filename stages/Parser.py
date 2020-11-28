@@ -1579,8 +1579,8 @@ def parse(file_name, debug_list):
             print('🌳 Building AST ... ')
             syntax_error, ast = syntax_analysis(token_stream, True, debug_parser)
             print('➡️ Passing AST to next phase ... ')
-            return ast
+            return token_stream, ast
         else:
-            return {}
+            return token_stream, {}
     else:
-        return {}
+        return token_stream, {}
