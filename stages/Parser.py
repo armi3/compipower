@@ -710,11 +710,12 @@ def syntax_analysis(token_stream, build_ast, d):
                 # -----------------------
                 if build_ast:
                     block = dict_stack.pop()  # block
-                    full_token_stack.pop()  # PARENTHESIS_R
+                    parenthesis = full_token_stack.pop()  # PARENTHESIS_R
                     expr = dict_stack.pop()  # expr
                     full_token_stack.pop()  # PARENTHESIS_L
                     full_token_stack.pop()  # RW_IF
                     statement = {'statement_type': 'if',
+                                 'line_num': parenthesis.line_num,
                                  'condition': expr,
                                  'block': block}
                     dict_stack.append(statement)
@@ -746,9 +747,10 @@ def syntax_analysis(token_stream, build_ast, d):
                     block = dict_stack.pop()  # block
                     full_token_stack.pop()  # PARENTHESIS_R
                     expr = dict_stack.pop()  # expr
-                    full_token_stack.pop()  # PARENTHESIS_L
+                    parenthesis = full_token_stack.pop()  # PARENTHESIS_L
                     full_token_stack.pop()  # RW_IF
                     statement = {'statement_type': 'if',
+                                 'line_num': parenthesis.line_num,
                                  'condition': expr,
                                  'block': block,
                                  'else': block_else}

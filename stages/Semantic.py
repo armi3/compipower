@@ -1,12 +1,18 @@
 import json
 from nested_lookup import nested_lookup
+import pandas as pd
 from stages import Parser
 
 simples_list = []
 semantic_errors = []
 referenced_locations_ids = []
 referenced_locations_lines = []
+new_scope_scopes = []
 new_scope_lines = []
+new_scope_ids = []
+new_scope_var_types = []
+new_scope_scope_types = []
+scope_counter = 0
 
 
 def get_nested_simples(ast, list_name, simple_name, d):
@@ -220,17 +226,82 @@ def remove_id_lists2(ast, d):
 
 
 def build_symbol_table(ast, d):
+    global scope_counter, new_scope_scopes, new_scope_lines, new_scope_ids, new_scope_var_types, new_scope_scope_types
     print('💬 Building symbol table ... ')
-    get_new_scope_lines(ast, d)
+    get_new_scope_data(ast, d)
+    if d:
+        print('🗒 List scopes       = {}'.format(new_scope_scopes))
+        print('     🗒 Len          = {}'.format(len(new_scope_scopes)))
+        print('🗒 List lines        = {}'.format(new_scope_lines))
+        print('     🗒 Len          = {}'.format(len(new_scope_lines)))
+        print('🗒 List ids          = {}'.format(new_scope_ids))
+        print('     🗒 Len          = {}'.format(len(new_scope_ids)))
+        print('🗒 List var_types    = {}'.format(new_scope_var_types))
+        print('     🗒 Len          = {}'.format(len(new_scope_var_types)))
+        print('🗒 List scope_types  = {}'.format(new_scope_scope_types))
+        print('     🗒 Len          = {}'.format(len(new_scope_scope_types)))
+
+    symbol_table_dict = {'Scope': new_scope_scopes,
+                         'Line': new_scope_lines,
+                         'ID': new_scope_ids,
+                         'Var type': new_scope_var_types,
+                         'Scope type': new_scope_scope_types}
+
+    symbol_table_df = pd.DataFrame(symbol_table_dict, columns=['Scope', 'Line', 'ID', 'Var type', 'Scope type'])
 
 
-def get_new_scope_lines(ast, d):
+def get_new_scope_data(ast, d):
+    global scope_counter, new_scope_scopes, new_scope_lines, new_scope_ids, new_scope_var_types, new_scope_scope_types
     for key, content in ast.items():
-        if key == list_name and content != {}:
-            ast = restructure_nested_lists(ast, list_name, simple_name, d)
-        elif type(content) is dict:
-            restructure_deeply_nested_lists(ast[key], list_name, simple_name, d)
-    return new_scope_lines
+        if key == 'field_decl_list':
+            for k in ast[key]:
+                new_scope_scopes.append(scope_counter)
+                new_scope_lines.append(ast[key][k]['line_num'])
+                new_scope_ids.append(ast[key][k]['id'])
+                new_scope_var_types.append(ast[key][k]['var_type'])
+                new_scope_scope_types.append('field_decl')
+        elif key == 'method_decl_list':
+            for k in ast[key]:
+                scope_counter += 1  # each method is a new scope
+                if 'block' in ast[key][k]:
+                    if 'var_list' in ast[key][k]['block']:
+                        for var_key in ast[key][k]['block']['var_list']:
+                            new_scope_scopes.append(scope_counter)
+                            new_scope_lines.append(ast[key][k]['block']['var_list'][var_key]['line_num'])
+                            new_scope_ids.append(ast[key][k]['block']['var_list'][var_key]['id'])
+                            new_scope_var_types.append(ast[key][k]['block']['var_list'][var_key]['var_type'])
+                            new_scope_scope_types.append('local_var_decl')
+                    if 'statement_list' in ast[key][k]['block']:    # when refactoring, recursively get data from statements blocks
+                        for statement_key in ast[key][k]['block']['statement_list']:
+                            statements_before = 0
+                            if ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'assignment':
+                                scope_counter += 1
+                                statements_before += 1
+                                new_scope_scopes.append(scope_counter)
+                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['location']['id'])
+                                new_scope_var_types.append('tba')
+                                new_scope_scope_types.append('assignment')
+                            elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'method_call':
+                                scope_counter += 1
+                                statements_before += 1
+                                new_scope_scopes.append(scope_counter)
+                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['method_call']['line_num'])
+                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['method_call']['method_id'])
+                                new_scope_var_types.append('tba')
+                                new_scope_scope_types.append('method_call')
+                            elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'if':
+                                new_scope_scopes.append(scope_counter - statements_before)
+                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_ids.append('tba')
+                                new_scope_var_types.append('tba')
+                                new_scope_scope_types.append('if_condition')
+                            elif ast[key][k]['block']['statement_list'][statement_key]['statement_type'] == 'for':
+                                new_scope_scopes.append(scope_counter - statements_before)
+                                new_scope_lines.append(ast[key][k]['block']['statement_list'][statement_key]['line_num'])
+                                new_scope_ids.append(ast[key][k]['block']['statement_list'][statement_key]['initialization']['id'])
+                                new_scope_var_types.append('VT_INTEGER')
+                                new_scope_scope_types.append('for_initialization')
 
 
 def check_uniqueness(ast, d):

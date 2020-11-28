@@ -112,8 +112,6 @@ def cli(file_name, target, debug, opt_stage, out_name):
         print("Something went wrong!, try again")
 
 
-
-
 if __name__ == '__main__':
     cli()
     # main() o cli()

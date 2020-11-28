@@ -10,6 +10,7 @@ class Program {
                     w = gcd(x, -y, z);
                     z = false;
                     z = hvf();
+                    testing_this();
                 }
 
                 int gcd(int a, int b, boolean h) {
@@ -28,6 +29,10 @@ class Program {
 
                 boolean the_empty_method(){
                     boolean var_empty;
+                }
+
+                void testing_this(){
+                    boolean testing;
                 }
 
             }
