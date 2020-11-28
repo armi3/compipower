@@ -6,6 +6,7 @@ simples_list = []
 semantic_errors = []
 referenced_locations_ids = []
 referenced_locations_lines = []
+new_scope_lines = []
 
 
 def get_nested_simples(ast, list_name, simple_name, d):
@@ -218,9 +219,22 @@ def remove_id_lists2(ast, d):
     return ast
 
 
+def build_symbol_table(ast, d):
+    print('💬 Building symbol table ... ')
+    get_new_scope_lines(ast, d)
+
+
+def get_new_scope_lines(ast, d):
+    for key, content in ast.items():
+        if key == list_name and content != {}:
+            ast = restructure_nested_lists(ast, list_name, simple_name, d)
+        elif type(content) is dict:
+            restructure_deeply_nested_lists(ast[key], list_name, simple_name, d)
+    return new_scope_lines
+
+
 def check_uniqueness(ast, d):
-    if d:
-        print('💬 Building symbol table ... ')
+    pass
 
 
 def check_assign_types(ast, d):
@@ -243,9 +257,10 @@ def semantic(file_name, debug_list):
 
         reorganized_ast = remove_id_lists1(reorganized_ast, debug_semantic)
         reorganized_ast = remove_id_lists2(reorganized_ast, debug_semantic)
-        print('🌳 A lovely, flat and decorated AST = {}'.format(reorganized_ast))
+        print('🌳 A lovely, slimmer and decorated AST = {}'.format(reorganized_ast))
 
-        print("🧠️ Checking for duplicated identifier definition inside a same scope ...")
+        print("🧠️ Starting type and scope analysis ...")
+        symbol_table = build_symbol_table(reorganized_ast, debug_semantic)
         check_uniqueness(reorganized_ast, debug_semantic)
         check_assign_types(reorganized_ast, debug_semantic)
 
