@@ -1,5 +1,5 @@
-from stages import Lexer
-from model import Token, DFA_ex
+from model import Token
+from archives import DFA_ex
 
 # token_stream = Lexer.scan('../examples/example2.dcf', True)
 # print('\nmmmm token:', token_stream[0].token)

@@ -1,0 +1,33 @@
+class Program {
+    int x, y;
+    boolean f, g;
+    boolean z;
+                void main() {
+                    int w, uwu;
+                    x = 2;
+                    y = 3;
+                    w = 4;
+                    w = gcd(x, -y, z);
+                    z = false;
+                    z = hvf();
+                }
+
+                int gcd(int a, int b, boolean h) {
+                    int c;
+                    if (a == 2){
+                        c = a + b;
+                    } else {
+                        c = 20;
+                    }
+                    return c;
+                }
+
+                boolean hvf() {
+                    return true;
+                }
+
+                boolean the_empty_method(){
+                    boolean var_empty;
+                }
+
+            }

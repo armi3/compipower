@@ -1,39 +1,40 @@
 class Program{
 
+    int i, j;
+    boolean k;
+    boolean l;
+
     void main(){
-        int i, j, sum;
+
 	    sum = -0.23;
 
         for j = 0, 10 {
             sum += j;
         }
 
-        if (sum != 45) {
-            callout("printf", "ERROR for loop is bad (1)\n");
+        if (sum == -0.23) {
+            callout("printf", "GOOD assign negative is good (1)\n");
+            k = true;
         }
 
         i = 0x1a1;
-        for j = 10, 0 {
+
+        for j = 10, j <= 15 {
             i += 1;
+            j += 2;
         }
 
         if (i != 11) {
             callout("printf", "ERROR for loop is bad (2)\n");
         }
 
-        if (1 > 2) {
-            callout("printf", "ERROR true branch is bad (2)\n");
-        } else {
-            // dont do anything here
-        }
-
         if (1 < 2) {
-            // dont do anything here
+            callout("printf", "GOOD true branch is good (2)\n");
         } else {
             callout("printf", "ERROR else branch is bad (2)\n");
         }
 
-        callout("printf", "control flow OK if no previous output\n");
+        callout("printf", "control flow OK if no previous ERROR output\n");
     }
 
 }

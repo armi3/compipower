@@ -1,6 +1,5 @@
-from stages import Lexer
+from stages import Lexer, Parser, Semantic, IRT, Codegen
 import click
-
 
 @click.command()
 @click.argument('file_name')
@@ -19,6 +18,15 @@ def main(file_name, target, debug, out_name):
 
 
 if __name__ == '__main__':
-    #main()
+    # main() o cli()
     # lexer dev
-    token_stream = Lexer.scan('examples/example2.dcf', True)
+    # debug_list = [False, False, True, True, True]
+    # token_stream = Lexer.scan('examples/example4.dcf', debug_list)
+
+    # parser dev
+    # debug_list = [False, False, True, True, True]
+    # ast = Parser.parse('examples/example4.dcf', debug_list)
+
+    # semantic dev
+    debug_list = [False, False, False, True, True]
+    ast = Semantic.semantic('examples/example4.dcf', debug_list)
