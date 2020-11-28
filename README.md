@@ -9,11 +9,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3.  Now you're ready to run the compiler.
+3. For the graph generation, you might need to install graphviz.
+```
+brew install graphviz
+```
+
+4.  Now you're ready to run the compiler.
 ```
 python Compiler.py examples/example5.dcf -t parse -o ex5
 ```
 Replace `examples/example5.dcf` with the path to the decaf code you wish to compile (you can use one from the `\examples` directory or a file from your own).
+
+5.  You can also compile in debug mode.
+```
+python Compiler.py examples/example5.dcf -t parse -o ex5 -d scan:parse
+```
 
 The option `--target` or `-t` receives one of the six possible compiling stages as its argument (`scan`, `parse`, `ast`, `semantic`, `irt`, or `codegen`). If no option is specified, the compiler will execute until `codegen`, the default and final stage.
 
