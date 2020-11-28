@@ -37,3 +37,9 @@ This decorated AST is represented with a graph in `/outputs/graph.png`.
 
 ### 📝 Symbol Table to an HTML table
 After semantic analysis a symbol table is built and can be visualized in `/outputs/table.html` using any browser.
+
+
+# Design docs
+Check `/design_docs` to find:
+* `/design_docs/scanner_design.pdf` with our sprint review and the scanner's NFA, DFA and reduced DFA.
+* `/design_docs/parser_design.xlsx` with our grammar, productions, derivations, DFA and reduction rules.
