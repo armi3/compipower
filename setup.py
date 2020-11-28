@@ -10,6 +10,6 @@ setup(
     ],
     entry_points="""
         [console_scripts]
-        compiler=example:cli
+        compiler=Compiler:cli
     """,
 )
